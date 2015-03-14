@@ -1,0 +1,7 @@
+./gcta_mac --bfile hapmap_r23a/hapmap_r23a --autosome --make-grm --out out/hapmap_r23a
+--keep   test.indi.list
+--maf   0.05
+
+
+
+
