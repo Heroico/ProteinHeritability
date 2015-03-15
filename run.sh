@@ -13,3 +13,5 @@ for filename in ./Intermediate/pheno*.phen; do
   outname="Intermediate/reml_${inname:19:-5}"
   gcta64 --grm Intermediate/hapmap_r23a --pheno $inname --reml --out $outname --thread-num 4
 done
+
+python process_reml.py
