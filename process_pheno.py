@@ -35,19 +35,23 @@ def ReadPhenoInput(file_name='Data/mmc5-i.csv'):
                         pheno_individuals.append(item)
             # data row: get each value into its individual
             elif len(row):
+                id = None
                 protein = None
                 for index, pheno_value in enumerate(row):
                     if index <= COL_Antibody_Quality:
+                        if index == COL_ID:
+                            id = pheno_value
                         if index == COL_Protein:
                             protein = pheno_value
                         pass
                     else:
+                        name=id+"_"+protein
                         pheno = None
-                        if not protein in phenos:
-                            pheno = {KEY_PHENO_NAME:protein, KEY_PHENO_VALUES:{}}
-                            phenos[protein] = pheno
+                        if not name in phenos:
+                            pheno = {KEY_PHENO_NAME:name, KEY_PHENO_VALUES:{}}
+                            phenos[name] = pheno
                         else:
-                            pheno = phenos[protein]
+                            pheno = phenos[name]
                         item = pheno_individuals[index-COL_Antibody_Quality-1]
                         values = pheno[KEY_PHENO_VALUES]
                         values[item] = pheno_value
@@ -100,9 +104,9 @@ def PrintIntersectionFamFile(intersection):
             out.write(" ".join(item) + '\n')
 
 def PrintPhenotypeFiles(phenos,grm_ids):
-    for protein, pheno in phenos.iteritems():
-        protein_name = protein.replace('(','_').replace(')','_').replace('/','-')
-        file_name = 'Intermediate/pheno_'+protein_name+'.phen'
+    for name, pheno in phenos.iteritems():
+        pheno_name = name.replace('(','_').replace(')','_').replace('/','-')
+        file_name = 'Intermediate/pheno_'+pheno_name+'.phen'
         with open(file_name, 'w+') as out:
             values = pheno[KEY_PHENO_VALUES]
             for ind in grm_ids:

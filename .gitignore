@@ -1,4 +1,5 @@
 Data
 Intermediate
-.*~
+*.*~
 .idea
+log.txt
