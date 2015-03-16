@@ -18,7 +18,7 @@ COL_Antibody_Quality = 11
 KEY_PHENO_NAME = "name"
 KEY_PHENO_VALUES = "values"
 
-def ReadPhenoInput(file_name='Data/mmc5-i.csv'):
+def ReadHausePhenoInput(file_name='Data/mmc5-i.csv'):
     pheno_individuals = []
     phenos = {}
     with open(file_name, 'rb') as csvfile:
@@ -98,15 +98,15 @@ def FamPhenoIntersection(fam, pheno_individuals):
 
     return intersection
 
-def PrintIntersectionFamFile(intersection):
-    with open('Intermediate/selected.fam', 'w') as out:
+def PrintIntersectionFamFile(intersection,file_name='Intermediate/selected.fam'):
+    with open(file_name, 'w') as out:
         for item in intersection:
             out.write(" ".join(item) + '\n')
 
-def PrintPhenotypeFiles(phenos,grm_ids):
+def PrintPhenotypeFiles(phenos,grm_ids,file_name_prefix='Intermediate/pheno_'):
     for name, pheno in phenos.iteritems():
         pheno_name = name.replace('(','_').replace(')','_').replace('/','-')
-        file_name = 'Intermediate/pheno_'+pheno_name+'.phen'
+        file_name = file_name_prefix+pheno_name+'.phen'
         with open(file_name, 'w+') as out:
             values = pheno[KEY_PHENO_VALUES]
             for ind in grm_ids:
@@ -116,7 +116,7 @@ def PrintPhenotypeFiles(phenos,grm_ids):
 if __name__ == "__main__":
 
     import argparse
-    parser = argparse.ArgumentParser(description='Process phenotype for information needed further down in the chain.')
+    parser = argparse.ArgumentParser(description='Process phenotype Hause for information needed further down in the chain.')
     parser.add_argument("--select_individuals",
                         help="build a selection of individuals to use with plink",
                         action='store_true')
@@ -125,7 +125,7 @@ if __name__ == "__main__":
                         action='store_true')
     args = parser.parse_args()
 
-    pheno_individuals, phenos = ReadPhenoInput('Data/mmc5-i.csv')
+    pheno_individuals, phenos = ReadHausePhenoInput('Data/mmc5-i.csv')
     fam = ReadFamInput('Data/hapmap_r23a.fam')
 
     intersection = None
