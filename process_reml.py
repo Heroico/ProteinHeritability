@@ -113,7 +113,8 @@ def PrintResultsToFile(results,file_name='Out/reml_results.csv'):
 
 if __name__ == "__main__":
     import glob
-
+    import argparse
+    
     parser = argparse.ArgumentParser(description='Figure out REML from phenos.')
     parser.add_argument("--file_input_prefix",
                         help="pattern of reml files")

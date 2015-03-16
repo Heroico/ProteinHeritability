@@ -1,6 +1,7 @@
 Data
-Intermediate
+Intermediate*
 *.*~
 *.*#
+*.pyc
 .idea
 log.txt
