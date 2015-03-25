@@ -123,6 +123,8 @@ if __name__ == "__main__":
     parser.add_argument("--build_phenotypes",
                         help="build phenotype files from intermediate",
                         action='store_true')
+    parser.add_argument("--file_output_prefix",
+                        help="prefix pattern for output")
     args = parser.parse_args()
 
     pheno_individuals, phenos = ReadHausePhenoInput('Data/mmc5-i.csv')
@@ -135,4 +137,7 @@ if __name__ == "__main__":
 
     if args.build_phenotypes:
         grm_ids = ReadGRMIDInput('Intermediate/hapmap_r23a.grm.id')
-        PrintPhenotypeFiles(phenos,grm_ids)
+        if args.file_output_prefix and len(args.file_output_prefix):
+            PrintPhenotypeFiles(phenos, grm_ids, args.file_output_prefix)
+        else:
+            PrintPhenotypeFiles(phenos,grm_ids)
