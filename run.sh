@@ -1,5 +1,8 @@
 #! /bin/bash
 
+rm -rf Intermediate
+mkdir Intermediate
+
 python process_pheno.py --select_individuals
 
 plink --noweb --bfile Data/hapmap_r23a --maf 0.05 --keep Intermediate/selected.fam --make-bed --out Intermediate/hapmap_r23a
@@ -14,4 +17,4 @@ for filename in ./Intermediate/pheno*.phen; do
   gcta64 --grm Intermediate/hapmap_r23a --pheno $inname --reml --out $outname --thread-num 4
 done
 
-python process_reml.py
+python process_reml.py --reml_output reml_results_hause.csv
