@@ -36,4 +36,16 @@ http://www.complextraitgenomics.com/software/gcta/
 PLINK should be available on the shell path.
 http://pngu.mgh.harvard.edu/~purcell/plink/
 
+# Instructions
 
+The protein heritability can be run as in:
+
+```bash
+$ bash run.sh
+```
+
+or:
+
+```bash
+$ bash run_wu.sh
+```
