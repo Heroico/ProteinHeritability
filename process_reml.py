@@ -60,8 +60,8 @@ def LoadREMLFromFile(file_name):
         result[KEY_REML_N] = n_results[0]
     return result
 
-def NameFromFileName(fileName):
-    name = fileName[20:-4]
+def NameFromFileName(fileName,fileNameStartIndex):
+    name = fileName[fileNameStartIndex:-4]
     return name
 
 def OrderFromName(name):
@@ -73,11 +73,11 @@ def OrderFromName(name):
 KEY_RESULT_NAME = "name"
 KEY_RESULT_REML = "reml"
 KEY_RESULT_ORDER = "order"
-def BuildResultsFromFiles(files):
+def BuildResultsFromFiles(files, fileNameStartIndex=20):
     results = []
     for file_name in files:
         reml = LoadREMLFromFile(file_name)
-        name = NameFromFileName(file_name)
+        name = NameFromFileName(file_name, fileNameStartIndex)
         order = OrderFromName(name)
         result = {KEY_RESULT_NAME: name, KEY_RESULT_REML:reml, KEY_RESULT_ORDER:order}
         results.append(result)
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     if args.file_input_prefix and len(args.file_input_prefix):
         pattern = args.file_input_prefix
     files = glob.glob(pattern)
-    results = BuildResultsFromFiles(files)
+    results = BuildResultsFromFiles(files, len(pattern))
 
     fine_name = 'Out/reml_results.csv'
     if args.reml_output and len(args.reml_output):

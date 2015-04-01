@@ -13,7 +13,7 @@ python process_pheno_wu.py --build_phenotypes
 
 for filename in ./IntermediateWu/pheno*.phen; do
   inname=${filename:2}
-  outname="IntermediateWu/reml_${inname:19:-5}"
+  outname="IntermediateWu/reml_${inname:21:-5}"
   gcta64 --grm IntermediateWu/hapmap_r23a --pheno $inname --reml --out $outname --thread-num 4
 done
 
