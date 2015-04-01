@@ -1,5 +1,8 @@
 #! /bin/bash
 
+rm -rf IntermediateWu
+mkdir IntermediateWu
+
 python process_pheno_wu.py --select_individuals
 
 plink --noweb --bfile Data/hapmap_r23a --maf 0.05 --keep IntermediateWu/selected.fam --make-bed --out IntermediateWu/hapmap_r23a
@@ -14,4 +17,4 @@ for filename in ./IntermediateWu/pheno*.phen; do
   gcta64 --grm IntermediateWu/hapmap_r23a --pheno $inname --reml --out $outname --thread-num 4
 done
 
-python process_reml.py --file_input_prefix './Intermediate/reml*'
+python process_reml.py --file_input_prefix './IntermediateWu/reml*' --reml_output Out/reml_results_wu.csv
