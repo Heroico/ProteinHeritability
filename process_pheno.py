@@ -111,10 +111,14 @@ def PrintIntersectionFamFile(intersection,file_name='Intermediate/selected.fam')
         for item in intersection:
             out.write(" ".join(item) + '\n')
 
+def PhenoFileName(prefix, pheno_name):
+    pheno_name = pheno_name.replace('(','_').replace(')','_').replace('/','-')
+    file_name = prefix + pheno_name +".phen"
+    return file_name
+
 def PrintPhenotypeFiles(phenos,grm_ids,file_name_prefix='Intermediate/pheno_'):
     for name, pheno in phenos.iteritems():
-        pheno_name = name.replace('(','_').replace(')','_').replace('/','-')
-        file_name = file_name_prefix+pheno_name+'.phen'
+        file_name = PhenoFileName(file_name_prefix, pheno)
         with open(file_name, 'w+') as out:
             values = pheno[KEY_PHENO_VALUES]
             for ind in grm_ids:

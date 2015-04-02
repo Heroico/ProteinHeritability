@@ -2,6 +2,7 @@ __author__ = 'heroico'
 
 import csv
 
+#-----------------------------------------------------------------------------------------------------------------------
 KEY_GENE_NAME = "name"
 KEY_GENE_ENSEMBLE = "ensemble"
 KEY_GENE_PROTEINS = "proteins"
@@ -16,8 +17,10 @@ def BuildGeneToProteinRelationShip(file_name="Intermediate/HauseGeneToProtein.tx
             for i in xrange(2,cols):
                 entry[KEY_GENE_PROTEINS].append(row[i])
             gene_to_protein[entry[KEY_GENE_NAME]] = entry
+
     return gene_to_protein
 
+#-----------------------------------------------------------------------------------------------------------------------
 KEY_PERSON_ID = "id"
 KEY_PERSON_PREDIXCAN_ROW = "predixcan_row"
 
@@ -46,6 +49,7 @@ def BuildPeopleInPhenoList(fam_file_name="Intermediate/hapmap_r23a.fam", predixc
 
     return people, people_by_predixcan_row
 
+#-----------------------------------------------------------------------------------------------------------------------
 KEY_MRNA_GENE_NAME = "name"
 KEY_MRNA_GENE_COL = "col"
 KEY_MRNA_VALUES = "values"
@@ -57,6 +61,7 @@ def BuildMRNAData(selected_people_by_predixcan_row, gene_to_protein, predixcan_d
         read_first_row = False
         for row in reader:
             if not read_first_row:
+                #print sorted(row)
                 for col,gene in enumerate(row):
                     if gene in gene_to_protein:
                         mrna_item = {KEY_MRNA_GENE_NAME:gene, KEY_MRNA_GENE_COL:col}
@@ -76,9 +81,68 @@ def BuildMRNAData(selected_people_by_predixcan_row, gene_to_protein, predixcan_d
                         values[person[KEY_PERSON_ID]] = row[mrna_item[KEY_MRNA_GENE_COL]]
     return MRNA
 
+#-----------------------------------------------------------------------------------------------------------------------
+import process_pheno
 
+KEY_PHENO_PERSON_ID = "person_id"
+KEY_PHENO_VALUE = "value"
 
+def LoadPheno(pheno_file_name):
+    pheno = {}
+    with open(pheno_file_name, 'rb') as file:
+        reader = csv.reader(file, delimiter=" ", quotechar='"')
+        for row in reader:
+            pheno[row[1]] = row[2]
+    return pheno
 
+#-----------------------------------------------------------------------------------------------------------------------
+import numpy
+def MRNAProteinAverageCorrelation(MRNA, gene_to_protein,  pheno_prefix):
+    correlation = []
+    for gene, mrna_item in MRNA.iteritems():
+        proteins = gene_to_protein[gene][KEY_GENE_PROTEINS]
+        mrna_values = []
+        protein_values = []
+
+        phenos = []
+        for protein in proteins:
+            name = process_pheno.PhenoFileName(pheno_prefix, protein)
+            pheno = LoadPheno(name)
+            phenos.append(pheno)
+
+        for person_id, mrna_value in mrna_item[KEY_MRNA_VALUES].iteritems():
+            if mrna_value == "NA":
+                raise  "Can't handle invalid mrna value"
+
+            pheno_value = 0
+            pheno_count = 0
+
+            for pheno in phenos:
+                if person_id in pheno:
+                    value = pheno[person_id]
+                    if not value == "NA":
+                        float_value = float(value)
+                        pheno_value += float_value
+                        pheno_count += 1
+
+            if pheno_count > 0:
+                mrna_values.append(float(mrna_value))
+                protein_values.append(pheno_value/pheno_count)
+
+        pearson = numpy.corrcoef(mrna_values, protein_values)[0,1]
+        line = []
+        line.append(gene)
+        line.append(pearson)
+        correlation.append(line)
+    return correlation
+
+def PrintCorrelation(correlation,file_name):
+    with open(file_name, "w+") as file:
+        for line in correlation:
+            text = line[0] + " " + str(line[1]) + "\n"
+            file.write(text)
+
+#-----------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Correlations between proteins and mrna.')
@@ -94,6 +158,12 @@ if __name__ == "__main__":
     parser.add_argument("--predixcan_file",
                         help="file with predixcan data",
                         default="Data/predixcan-results.csv")
+    parser.add_argument("--pheno_prefix",
+                        help="prefix for phenotype input files",
+                        default="./Intermediate/pheno_")
+    parser.add_argument("--out",
+                        help="name of file where the correlation will be output",
+                        default="./Out/hause-mrna-protein-correlation.txt")
     args = parser.parse_args()
 
     #-------------------------------------------------------------------------------------------------------------------
@@ -108,3 +178,12 @@ if __name__ == "__main__":
     #-------------------------------------------------------------------------------------------------------------------
     predixcan_file = args.predixcan_file
     MRNA = BuildMRNAData(people_by_predixcan_row, gene_to_protein, predixcan_file)
+
+    #-------------------------------------------------------------------------------------------------------------------
+    pheno_prefix = args.pheno_prefix
+    correlation = MRNAProteinAverageCorrelation(MRNA, gene_to_protein, pheno_prefix)
+
+    output = args.out
+    PrintCorrelation(correlation, output)
+
+
