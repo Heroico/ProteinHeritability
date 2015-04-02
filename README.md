@@ -26,6 +26,16 @@ mmc5-i.csv #protein data from hauser
 pheno-protein-wu.csv #protein data from Wu-Snyder
 ```
 
+For correlating to mrna data, you need:
+
+```
+#generated with:
+#python predict_gene_expression.py --dosages GEUVADIS/dosagefiles-hapmap2/ --weights DGN-WB_0.5.db --out out/results
+predixcan-results.csv
+#basically, samples files from GEUVADIS
+predixcan-samples.txt
+```
+
 ## GCTA
 
 GCTA 1.24 should be on the shell path, and callable as gcta64
