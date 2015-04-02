@@ -17,6 +17,8 @@ COL_Antibody_Quality = 11
 
 KEY_PHENO_NAME = "name"
 KEY_PHENO_VALUES = "values"
+KEY_PHENO_ENSEMBLE = "ensemble"
+KEY_PHENO_GENE = "gene"
 
 def ReadHausePhenoInput(file_name='Data/mmc5-i.csv'):
     pheno_individuals = []
@@ -37,18 +39,24 @@ def ReadHausePhenoInput(file_name='Data/mmc5-i.csv'):
             elif len(row):
                 id = None
                 protein = None
+                gene = None
+                ensemble = None
                 for index, pheno_value in enumerate(row):
                     if index <= COL_Antibody_Quality:
                         if index == COL_ID:
                             id = pheno_value
                         if index == COL_Protein:
                             protein = pheno_value
+                        if index == COL_Gene:
+                            gene = pheno_value
+                        if index == COL_Ensembl_ID:
+                            ensemble = pheno_value
                         pass
                     else:
                         name=id+"_"+protein
                         pheno = None
                         if not name in phenos:
-                            pheno = {KEY_PHENO_NAME:name, KEY_PHENO_VALUES:{}}
+                            pheno = {KEY_PHENO_NAME:name, KEY_PHENO_ENSEMBLE:ensemble, KEY_PHENO_GENE:gene, KEY_PHENO_VALUES:{}}
                             phenos[name] = pheno
                         else:
                             pheno = phenos[name]
@@ -113,6 +121,30 @@ def PrintPhenotypeFiles(phenos,grm_ids,file_name_prefix='Intermediate/pheno_'):
                 line = ind[COL_GRM_FAM_ID]+ " " + ind[COL_GRM_IND_ID] + " " + values[ind[COL_GRM_IND_ID]] + "\n"
                 out.write(line)
 
+def PrintGeneToProteinList(phenos, file_name= "Intermediate/HauseGeneToProtein.txt"):
+    output = {}
+    for name, pheno in phenos.iteritems():
+        gene = pheno[KEY_PHENO_GENE]
+        line = None
+        if not gene in output:
+            line = []
+            line.append(gene)
+            line.append(pheno[KEY_PHENO_ENSEMBLE])
+            output[gene] = line
+        else:
+            line = output[gene]
+        line.append(pheno[KEY_PHENO_NAME])
+
+    output_lines = []
+    for gene,line in output.iteritems():
+        output_lines.append(line)
+    output_lines =sorted(output_lines, key=lambda line: line[0])
+
+    with open(file_name, 'w+') as out:
+        for line in output_lines:
+            out.write(" ".join(line)+"\n")
+
+
 if __name__ == "__main__":
 
     import argparse
@@ -125,19 +157,33 @@ if __name__ == "__main__":
                         action='store_true')
     parser.add_argument("--file_output_prefix",
                         help="prefix pattern for output")
+
+    parser.add_argument("--gene_to_protein_mode",
+                       help="Will only build a table mapping gene to protein(must pass ensemble output)",
+                       action='store_true')
+
+    parser.add_argument("--gene_to_protein_output_name",
+                        help="file output name")
+
     args = parser.parse_args()
 
     pheno_individuals, phenos = ReadHausePhenoInput('Data/mmc5-i.csv')
-    fam = ReadFamInput('Data/hapmap_r23a.fam')
 
-    intersection = None
-    if args.select_individuals:
-        intersection = FamPhenoIntersection(fam, pheno_individuals)
-        PrintIntersectionFamFile(intersection)
+    if args.gene_to_protein_mode:
+        file_name = "Intermediate/HauseGeneToProtein.txt"
+        if args.gene_to_protein_output_name and len(args.gene_to_protein_output_name):
+            file_name = args.gene_to_protein_output_name
+        PrintGeneToProteinList(phenos, file_name)
+    else:
+        fam = ReadFamInput('Data/hapmap_r23a.fam')
+        intersection = None
+        if args.select_individuals:
+            intersection = FamPhenoIntersection(fam, pheno_individuals)
+            PrintIntersectionFamFile(intersection)
 
-    if args.build_phenotypes:
-        grm_ids = ReadGRMIDInput('Intermediate/hapmap_r23a.grm.id')
-        if args.file_output_prefix and len(args.file_output_prefix):
-            PrintPhenotypeFiles(phenos, grm_ids, args.file_output_prefix)
-        else:
-            PrintPhenotypeFiles(phenos,grm_ids)
+        if args.build_phenotypes:
+            grm_ids = ReadGRMIDInput('Intermediate/hapmap_r23a.grm.id')
+            if args.file_output_prefix and len(args.file_output_prefix):
+                PrintPhenotypeFiles(phenos, grm_ids, args.file_output_prefix)
+            else:
+                PrintPhenotypeFiles(phenos,grm_ids)
