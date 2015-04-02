@@ -117,18 +117,16 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Figure out REML from phenos.')
     parser.add_argument("--file_input_prefix",
-                        help="pattern of reml files")
+                        help="pattern of reml files",
+                        default='./Intermediate/reml*')
     parser.add_argument("--reml_output",
-                        help="name of output file")
+                        help="name of output file",
+                        default = 'Out/reml_results.csv')
     args = parser.parse_args()
 
-    pattern = './Intermediate/reml*'
-    if args.file_input_prefix and len(args.file_input_prefix):
-        pattern = args.file_input_prefix
+    pattern = args.file_input_prefix
     files = glob.glob(pattern)
     results = BuildResultsFromFiles(files, len(pattern))
 
-    fine_name = 'Out/reml_results.csv'
-    if args.reml_output and len(args.reml_output):
-        file_name = args.reml_output
+    fine_name = args.reml_output
     PrintResultsToFile(results, file_name)

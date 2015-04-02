@@ -163,27 +163,26 @@ if __name__ == "__main__":
                        action='store_true')
 
     parser.add_argument("--gene_to_protein_output_name",
-                        help="file output name")
+                        help="file output name",
+                        default="Intermediate/HauseGeneToProtein.txt")
 
     args = parser.parse_args()
 
     pheno_individuals, phenos = ReadHausePhenoInput('Data/mmc5-i.csv')
 
     if args.gene_to_protein_mode:
-        file_name = "Intermediate/HauseGeneToProtein.txt"
-        if args.gene_to_protein_output_name and len(args.gene_to_protein_output_name):
-            file_name = args.gene_to_protein_output_name
+        file_name = args.gene_to_protein_output_name
         PrintGeneToProteinList(phenos, file_name)
-    else:
+
+    if args.select_individuals:
         fam = ReadFamInput('Data/hapmap_r23a.fam')
         intersection = None
-        if args.select_individuals:
-            intersection = FamPhenoIntersection(fam, pheno_individuals)
-            PrintIntersectionFamFile(intersection)
+        intersection = FamPhenoIntersection(fam, pheno_individuals)
+        PrintIntersectionFamFile(intersection)
 
-        if args.build_phenotypes:
-            grm_ids = ReadGRMIDInput('Intermediate/hapmap_r23a.grm.id')
-            if args.file_output_prefix and len(args.file_output_prefix):
-                PrintPhenotypeFiles(phenos, grm_ids, args.file_output_prefix)
-            else:
-                PrintPhenotypeFiles(phenos,grm_ids)
+    if args.build_phenotypes:
+        grm_ids = ReadGRMIDInput('Intermediate/hapmap_r23a.grm.id')
+        if args.file_output_prefix and len(args.file_output_prefix):
+            PrintPhenotypeFiles(phenos, grm_ids, args.file_output_prefix)
+        else:
+            PrintPhenotypeFiles(phenos,grm_ids)

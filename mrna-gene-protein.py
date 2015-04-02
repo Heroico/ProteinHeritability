@@ -36,6 +36,7 @@ def BuildPeopleInPhenoList(fam_file_name="Intermediate/hapmap_r23a.fam", predixc
             person_id = row[0]
             candidates = [person for person in people if person[KEY_PERSON_ID] == person_id]
             candidates_num = len(candidates)
+
             if candidates_num > 1:
                 raise "can't handle more than one candidate"
             elif candidates_num == 1:
@@ -45,30 +46,35 @@ def BuildPeopleInPhenoList(fam_file_name="Intermediate/hapmap_r23a.fam", predixc
 
     return people, people_by_predixcan_row
 
-
+def BuildMRNAData(selected_people_by_predixcan_row, gene_to_protein, predixcan_data_file_name):
+    pass
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Correlations between proteins and mrna.')
     parser.add_argument("--gene_to_protein",
-                        help="file with gene-to-protein relationships")
+                        help="file with gene-to-protein relationships",
+                        default="Intermediate/HauseGeneToProtein.txt")
     parser.add_argument("--predixcan_samples",
-                        help="file with predixcan samples")
+                        help="file with predixcan samples",
+                        default = "Data/predixcan-samples.txt")
     parser.add_argument("--fam_file",
-                        help="file with pheno fam information")
+                        help="file with pheno fam information",
+                        default="Intermediate/hapmap_r23a.fam")
+    parser.add_argument("--predixcan_file",
+                        help="file with predixcan data",
+                        default="Data/predixcan-results.csv")
     args = parser.parse_args()
 
-    gene_to_protein_file = "Intermediate/HauseGeneToProtein.txt"
-    if args.gene_to_protein and len(args.gene_to_protein):
-        gene_to_protein_file = args.gene_to_protein
+    #-------------------------------------------------------------------------------------------------------------------
+    gene_to_protein_file = args.gene_to_protein
     gene_to_protein = BuildGeneToProteinRelationShip(gene_to_protein_file)
 
-    predixcan_sample_file = "Data/predixcan-samples.txt"
-    if args.predixcan_samples and len(args.predixcan_samples):
-        predixcan_sample_file = args.predixcan_samples
-
-    fam_file = "Intermediate/hapmap_r23a.fam"
-    if args.fam_file and len(args.fam_file):
-        fam_file = args.fam_file
-
+    #-------------------------------------------------------------------------------------------------------------------
+    predixcan_sample_file = args.predixcan_samples
+    fam_file = args.fam_file
     people, people_by_predixcan_row = BuildPeopleInPhenoList(fam_file, predixcan_sample_file)
+
+    #-------------------------------------------------------------------------------------------------------------------
+    predixcan_file = args.predixcan_file
+    BuildMRNAData(people_by_predixcan_row, gene_to_protein, predixcan_file)
