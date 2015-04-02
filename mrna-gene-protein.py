@@ -96,6 +96,7 @@ def LoadPheno(pheno_file_name):
     return pheno
 
 #-----------------------------------------------------------------------------------------------------------------------
+import math
 import numpy
 def MRNAProteinAverageCorrelation(MRNA, gene_to_protein,  pheno_prefix):
     correlation = []
@@ -126,14 +127,45 @@ def MRNAProteinAverageCorrelation(MRNA, gene_to_protein,  pheno_prefix):
                         pheno_count += 1
 
             if pheno_count > 0:
-                mrna_values.append(float(mrna_value))
-                protein_values.append(pheno_value/pheno_count)
-
+                the_value = float(mrna_value)
+                if not math.isnan(the_value):
+                    mrna_values.append(the_value)
+                    protein_values.append(pheno_value/pheno_count)
         pearson = numpy.corrcoef(mrna_values, protein_values)[0,1]
         line = []
         line.append(gene)
         line.append(pearson)
         correlation.append(line)
+    return correlation
+
+def MRNAProteinCorrelation(MRNA, gene_to_protein,  pheno_prefix):
+    correlation = []
+    for gene, mrna_item in MRNA.iteritems():
+        proteins = gene_to_protein[gene][KEY_GENE_PROTEINS]
+
+        for protein in proteins:
+            name = process_pheno.PhenoFileName(pheno_prefix, protein)
+            pheno = LoadPheno(name)
+
+            protein_values = []
+            mrna_values = []
+            for person_id, pheno_value in pheno.iteritems():
+                if pheno_value == "NA":
+                    continue
+
+                if person_id in mrna_item[KEY_MRNA_VALUES]:
+                    the_value = float(mrna_item[KEY_MRNA_VALUES][person_id])
+                    the_pheno_value = float(pheno_value)
+                    if not math.isnan(the_value) and not math.isnan(the_pheno_value):
+                        mrna_values.append(the_value)
+                        protein_values.append(the_pheno_value)
+
+            pearson = numpy.corrcoef(mrna_values, protein_values)[0,1]
+            line = []
+            line.append(gene+"-"+protein)
+            line.append(pearson)
+            correlation.append(line)
+
     return correlation
 
 def PrintCorrelation(correlation,file_name):
@@ -162,8 +194,11 @@ if __name__ == "__main__":
                         help="prefix for phenotype input files",
                         default="./Intermediate/pheno_")
     parser.add_argument("--out",
-                        help="name of file where the correlation will be output",
+                        help="name of file where the correlation (protein average) will be output",
                         default="./Out/hause-mrna-protein-correlation.txt")
+    parser.add_argument("--out_ext",
+                        help="name of file where the correlation will be output",
+                        default="./Out/hause-mrna-protein-ext-correlation.txt")
     args = parser.parse_args()
 
     #-------------------------------------------------------------------------------------------------------------------
@@ -185,5 +220,10 @@ if __name__ == "__main__":
 
     output = args.out
     PrintCorrelation(correlation, output)
+
+    #-------------------------------------------------------------------------------------------------------------------
+    correlation_ext = MRNAProteinCorrelation(MRNA, gene_to_protein, pheno_prefix)
+    output_ext = args.out_ext
+    PrintCorrelation(correlation_ext, output_ext)
 
 
