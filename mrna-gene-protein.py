@@ -46,8 +46,38 @@ def BuildPeopleInPhenoList(fam_file_name="Intermediate/hapmap_r23a.fam", predixc
 
     return people, people_by_predixcan_row
 
+KEY_MRNA_GENE_NAME = "name"
+KEY_MRNA_GENE_COL = "col"
+KEY_MRNA_VALUES = "values"
+
 def BuildMRNAData(selected_people_by_predixcan_row, gene_to_protein, predixcan_data_file_name):
-    pass
+    MRNA = {}
+    with open(predixcan_data_file_name, 'rb') as file:
+        reader = csv.reader(file, delimiter="\t", quotechar='"')
+        read_first_row = False
+        for row in reader:
+            if not read_first_row:
+                for col,gene in enumerate(row):
+                    if gene in gene_to_protein:
+                        mrna_item = {KEY_MRNA_GENE_NAME:gene, KEY_MRNA_GENE_COL:col}
+                        MRNA[gene] = mrna_item
+                read_first_row = True
+            else:
+                person_row = reader.line_num-1
+                if person_row in selected_people_by_predixcan_row:
+                    person = selected_people_by_predixcan_row[person_row]
+                    for gene, mrna_item in MRNA.iteritems():
+                        values = None
+                        if KEY_MRNA_VALUES in mrna_item:
+                            values = mrna_item[KEY_MRNA_VALUES]
+                        else:
+                            values = {}
+                            mrna_item[KEY_MRNA_VALUES] = values
+                        values[person[KEY_PERSON_ID]] = row[mrna_item[KEY_MRNA_GENE_COL]]
+    return MRNA
+
+
+
 
 if __name__ == "__main__":
     import argparse
@@ -77,4 +107,4 @@ if __name__ == "__main__":
 
     #-------------------------------------------------------------------------------------------------------------------
     predixcan_file = args.predixcan_file
-    BuildMRNAData(people_by_predixcan_row, gene_to_protein, predixcan_file)
+    MRNA = BuildMRNAData(people_by_predixcan_row, gene_to_protein, predixcan_file)
