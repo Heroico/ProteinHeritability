@@ -17,7 +17,6 @@ def BuildGeneToProteinRelationShip(file_name="Intermediate/HauseGeneToProtein.tx
             for i in xrange(2,cols):
                 entry[KEY_GENE_PROTEINS].append(row[i])
             gene_to_protein[entry[KEY_GENE_NAME]] = entry
-
     return gene_to_protein
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -46,7 +45,6 @@ def BuildPeopleInPhenoList(fam_file_name="Intermediate/hapmap_r23a.fam", predixc
                 person = candidates[0]
                 person[KEY_PERSON_PREDIXCAN_ROW] = reader.line_num
                 people_by_predixcan_row[reader.line_num] = person
-
     return people, people_by_predixcan_row
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -121,7 +119,7 @@ def MRNAProteinAverageCorrelation(MRNA, gene_to_protein,  pheno_prefix):
             for pheno in phenos:
                 if person_id in pheno:
                     value = pheno[person_id]
-                    if not value == "NA":
+                    if not "NA" in value:
                         float_value = float(value)
                         pheno_value += float_value
                         pheno_count += 1
@@ -131,10 +129,12 @@ def MRNAProteinAverageCorrelation(MRNA, gene_to_protein,  pheno_prefix):
                 if not math.isnan(the_value):
                     mrna_values.append(the_value)
                     protein_values.append(pheno_value/pheno_count)
+
         pearson = numpy.corrcoef(mrna_values, protein_values)[0,1]
         line = []
         line.append(gene)
         line.append(pearson)
+        line.append(len(mrna_values))
         correlation.append(line)
     return correlation
 
@@ -170,6 +170,7 @@ def MRNAProteinCorrelation(MRNA, gene_to_protein,  pheno_prefix):
             line = []
             line.append(gene+"-"+protein)
             line.append(pearson)
+            line.append(len(mrna_values))
             correlation.append(line)
 
     return correlation
@@ -177,7 +178,7 @@ def MRNAProteinCorrelation(MRNA, gene_to_protein,  pheno_prefix):
 def PrintCorrelation(correlation,file_name):
     with open(file_name, "w+") as file:
         for line in correlation:
-            text = line[0] + " " + str(line[1]) + "\n"
+            text = line[0] + " " + str(line[1]) + " " + str(line[2]) + "\n"
             file.write(text)
 
 #-----------------------------------------------------------------------------------------------------------------------
