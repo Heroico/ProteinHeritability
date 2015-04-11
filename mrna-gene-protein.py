@@ -150,7 +150,7 @@ def MRNAProteinCorrelation(MRNA, gene_to_protein,  pheno_prefix):
             protein_values = []
             mrna_values = []
             for person_id, pheno_value in pheno.iteritems():
-                if pheno_value == "NA":
+                if "NA" in pheno_value:
                     continue
 
                 if person_id in mrna_item[KEY_MRNA_VALUES]:
@@ -160,7 +160,13 @@ def MRNAProteinCorrelation(MRNA, gene_to_protein,  pheno_prefix):
                         mrna_values.append(the_value)
                         protein_values.append(the_pheno_value)
 
-            pearson = numpy.corrcoef(mrna_values, protein_values)[0,1]
+            pearson = "NA"
+            if len(mrna_values) and len(protein_values):
+                if len(mrna_values) == len(protein_values):
+                    pearson = numpy.corrcoef(mrna_values, protein_values)[0,1]
+                else:
+                    raise Exception("Data does not comply")
+
             line = []
             line.append(gene+"-"+protein)
             line.append(pearson)

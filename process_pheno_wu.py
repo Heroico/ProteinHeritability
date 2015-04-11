@@ -78,6 +78,37 @@ def FamPhenoIntersection(fam, pheno_individuals):
 
     return intersection
 
+
+from gene_code import ReadGeneCodeInput
+from gene_code import KEY_GENE_NAME as GENCODE_KEY_GENE_NAME
+from gene_code import KEY_ENSEMBLE_ID as GENCODE_KEY_ENSEMBLE_ID
+
+def PrintWuGeneToProteinList(phenos, gene_codes, file_name= "IntermediateWu/WuGeneToProtein.txt"):
+    output = {}
+    for name, pheno in phenos.iteritems():
+        ensemble = pheno[KEY_PHENO_NAME]
+        if ensemble in gene_codes:
+            gene_code = gene_codes[ensemble]
+            line = None
+            if not ensemble in output:
+                line = []
+                line.append(gene_code[GENCODE_KEY_GENE_NAME])
+                line.append(ensemble)
+                output[ensemble] = line
+            else:
+                line = output[ensemble]
+            line.append(ensemble)
+        else:
+            raise Exception('Need gene code for every ensemble')
+    output_lines = []
+    for gene,line in output.iteritems():
+        output_lines.append(line)
+    output_lines =sorted(output_lines, key=lambda line: line[0])
+
+    with open(file_name, 'w+') as out:
+        for line in output_lines:
+            out.write(" ".join(line)+"\n")
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Process phenotype from Wu for information needed further down in the chain.')
@@ -87,12 +118,23 @@ if __name__ == "__main__":
     parser.add_argument("--build_phenotypes",
                         help="build phenotype files from intermediate",
                         action='store_true')
+    parser.add_argument("--gene_to_protein_mode",
+                       help="Will only build a table mapping gene to protein(must pass ensemble output)",
+                       action='store_true')
+    parser.add_argument("--gene_to_protein_output_name",
+                        help="file output name",
+                        default="IntermediateWu/WuGeneToProtein.txt")
     args = parser.parse_args()
 
     pheno_individuals, phenos = ReadWuPhenoInput()
     fam = process_pheno.ReadFamInput('Data/hapmap_r23a.fam')
 
-    intersection = None
+
+    if args.gene_to_protein_mode:
+        file_name = args.gene_to_protein_output_name
+        gene_codes = ReadGeneCodeInput()
+        PrintWuGeneToProteinList(phenos, gene_codes, file_name)
+
     if args.select_individuals:
         intersection = FamPhenoIntersection(fam, pheno_individuals)
         process_pheno.PrintIntersectionFamFile(intersection, file_name="IntermediateWu/selected.fam")
