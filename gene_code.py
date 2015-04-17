@@ -25,5 +25,5 @@ def ReadGeneCodeInput(file_name='Data/gencode.v12.V1.summary.protein'):
             if not ensemble in gencodes:
                 gencodes[ensemble] = code
             else:
-                raise Exception('Duplicate ensemble id, check'+ense)
+                raise Exception('Duplicate ensemble id, check'+ensemble)
     return gencodes
