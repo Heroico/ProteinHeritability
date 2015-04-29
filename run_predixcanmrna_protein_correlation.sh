@@ -4,4 +4,4 @@ fi
 
 python process_pheno.py --gene_to_protein_mode
 
-python mrna-gene-protein.py
+python mrna_gene_protein.py

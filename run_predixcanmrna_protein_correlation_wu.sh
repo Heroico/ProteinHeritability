@@ -4,7 +4,7 @@ fi
 
 python process_pheno_wu.py --gene_to_protein_mode
 
-python mrna-gene-protein.py \
+python mrna_gene_protein.py \
 --gene_to_protein 'IntermediateWu/WuGeneToProtein.txt' \
 --fam_file 'IntermediateWu/hapmap_r23a.fam' \
 --pheno_prefix 'IntermediateWu/pheno_' \
