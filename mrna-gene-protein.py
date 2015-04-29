@@ -181,6 +181,16 @@ def PrintCorrelation(correlation,file_name):
             text = line[0] + " " + str(line[1]) + " " + str(line[2]) + "\n"
             file.write(text)
 
+def PrintGene(gene_name,MRNA, people_by_predixcan_row):
+    gene_item = MRNA[gene_name]
+    with open("Out/predixcandata-"+gene_name+".txt", "w+") as file:
+        for num, person in people_by_predixcan_row.iteritems():
+            person_id = person[KEY_PERSON_ID]
+            values = gene_item[KEY_MRNA_VALUES]
+            value = values[person_id]
+            text = person_id + " " + value + "\n"
+            file.write(text)
+
 #-----------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     import argparse
@@ -206,6 +216,9 @@ if __name__ == "__main__":
     parser.add_argument("--out_ext",
                         help="name of file where the correlation will be output",
                         default="./Out/hause-mrna-protein-ext-correlation.txt")
+    parser.add_argument("--trace_gene",
+                        help="gene to be output",
+                        default=None)
     args = parser.parse_args()
 
     #-------------------------------------------------------------------------------------------------------------------
@@ -232,5 +245,10 @@ if __name__ == "__main__":
     correlation_ext = MRNAProteinCorrelation(MRNA, gene_to_protein, pheno_prefix)
     output_ext = args.out_ext
     PrintCorrelation(correlation_ext, output_ext)
+
+    #-------------------------------------------------------------------------------------------------------------------
+    if args.trace_gene is not None and len(args.trace_gene):
+        PrintGene(args.trace_gene, MRNA, people_by_predixcan_row)
+
 
 
