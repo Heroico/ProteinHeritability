@@ -181,9 +181,9 @@ def PrintCorrelation(correlation,file_name):
             text = line[0] + " " + str(line[1]) + " " + str(line[2]) + "\n"
             file.write(text)
 
-def PrintGene(gene_name,MRNA, people_by_predixcan_row):
+def PrintGene(gene_name,MRNA, people_by_predixcan_row, prefix="Out/predixcandata-"):
     gene_item = MRNA[gene_name]
-    with open("Out/predixcandata-"+gene_name+".txt", "w+") as file:
+    with open(prefix+gene_name+".txt", "w+") as file:
         for num, person in people_by_predixcan_row.iteritems():
             person_id = person[KEY_PERSON_ID]
             values = gene_item[KEY_MRNA_VALUES]

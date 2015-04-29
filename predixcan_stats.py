@@ -28,6 +28,8 @@ def BuildGeneData(people_by_row, data_file_name):
                 for col,gene in enumerate(row):
                     gene_item = {KEY_MRNA_GENE_NAME:gene, KEY_MRNA_GENE_COL:col}
                     geneData[gene] = gene_item
+                    if gene == "AATF":
+                        print col
                 read_first_row = True
             else:
                 person_row = reader.line_num-1
@@ -42,6 +44,15 @@ def BuildGeneData(people_by_row, data_file_name):
                     person = people_by_row[person_row]
                     values[person] = row[col]
     return geneData
+
+def PrintGene(gene_name,MRNA, people_by_predixcan_row, prefix):
+    gene_item = MRNA[gene_name]
+    with open(prefix+gene_name+".txt", "w+") as file:
+        for num, person_id in people_by_predixcan_row.iteritems():
+            values = gene_item[KEY_MRNA_VALUES]
+            value = values[person_id]
+            text = person_id + " " + value + "\n"
+            file.write(text)
 
 import numpy
 
@@ -82,6 +93,10 @@ if __name__ == "__main__":
     parser.add_argument("--predixcan_sample_file_name",
                         help="predixcan sample people file",
                         default="Data/predixcan-samples.txt")
+
+    parser.add_argument("--affy_trace_gene",
+                        help="affy gene to be output",
+                        default=None)
     args = parser.parse_args()
 
     #-------------------------------------------------------------------------------------------------------------------
@@ -95,3 +110,6 @@ if __name__ == "__main__":
     pearson, covariance = Correlate(affy_people_by_row, affy_gene_data, predy_people_by_row, predy_gene_data)
     print "Pearson:"+str(pearson)
     print "Cov:"+str(covariance)
+
+    if args.affy_trace_gene is not None and len(args.affy_trace_gene):
+        PrintGene(args.affy_trace_gene, affy_gene_data, affy_people_by_row, "Out/affy-")
