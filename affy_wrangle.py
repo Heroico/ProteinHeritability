@@ -95,7 +95,7 @@ def LoadMatrix(id_to_gene_name, file_name):
 def PrintRows(rows, file_name):
     with open(file_name, 'w+') as out:
         for row in rows:
-            out.write(" ".join(row)+"\n")
+            out.write("\t".join(row)+"\n")
 
 if __name__ == "__main__":
 
@@ -132,4 +132,6 @@ if __name__ == "__main__":
     PrintRows(matrix_rows, output_matrix_file_name)
 
     output_people_file_name = args.people_output
-    PrintRows(people, output_people_file_name)
+    with open(output_people_file_name, 'w+') as out:
+        for row in people:
+            out.write(row+"\n")
