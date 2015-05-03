@@ -59,6 +59,7 @@ import numpy
 def Correlate(people_1, data_1, people_2, data_2):
     set_1 = []
     set_2 = []
+    gene_corr = []
     for gene_name, item_1 in data_1.iteritems():
         name_1 = item_1[KEY_MRNA_GENE_NAME]
         if name_1 in data_2:
@@ -66,13 +67,41 @@ def Correlate(people_1, data_1, people_2, data_2):
 
             values_1 = item_1[KEY_MRNA_VALUES]
             values_2 = item_2[KEY_MRNA_VALUES]
+
+            flat_1 = []
+            flat_2 = []
             for person, value in values_1.iteritems():
                 if person in values_2:
-                    set_1.append(float(value))
-                    set_2.append(float(values_2[person]))
+                    value_1 = float(value)
+                    value_2 = float(values_2[person])
+                    set_1.append(value_1)
+                    set_2.append(value_2)
+                    flat_1.append(value_1)
+                    flat_2.append(value_2)
+
+            line = []
+            pearon = 0
+            covariance = 0
+            samples = len(flat_1)
+            if samples:
+                pearson = numpy.corrcoef(flat_1, flat_2)[0,1]
+                covariance = numpy.cov(flat_1, flat_2)[0,1]
+
+            line.append(name_1)
+            line.append(samples)
+            line.append(pearson)
+            line.append(covariance)
+            gene_corr.append(line)
+
     pearson = numpy.corrcoef(set_1, set_2)[0,1]
     covariance = numpy.cov(set_1, set_2)[0,1]
-    return pearson, covariance
+    return gene_corr, pearson, covariance
+
+def PrintCorrelation(gene_correlation, file_name):
+    with open(file_name, "w+") as file:
+        for row in gene_correlation:
+            text = row[0] + " " + str(row[1]) + " " + str(row[2]) + " " + str(row[3]) + "\n"
+            file.write(text)
 
 if __name__ == "__main__":
 
@@ -94,6 +123,10 @@ if __name__ == "__main__":
                         help="predixcan sample people file",
                         default="Data/predixcan-samples.txt")
 
+    parser.add_argument("--out",
+                        help="file the gene ouput",
+                        default="Out/predixcan-stats-results.txt")
+
     parser.add_argument("--affy_trace_gene",
                         help="affy gene to be output",
                         default=None)
@@ -107,9 +140,8 @@ if __name__ == "__main__":
     predy_people_by_row = LoadPeople(args.predixcan_sample_file_name)
     predy_gene_data = BuildGeneData(predy_people_by_row, args.predixcan_results_file_name)
 
-    pearson, covariance = Correlate(affy_people_by_row, affy_gene_data, predy_people_by_row, predy_gene_data)
-    print "Pearson:"+str(pearson)
-    print "Cov:"+str(covariance)
+    gene_correlation, pearson, covariance = Correlate(affy_people_by_row, affy_gene_data, predy_people_by_row, predy_gene_data)
+    PrintCorrelation(gene_correlation, args.out)
 
     if args.affy_trace_gene is not None and len(args.affy_trace_gene):
         PrintGene(args.affy_trace_gene, affy_gene_data, affy_people_by_row, "Out/affy-")
