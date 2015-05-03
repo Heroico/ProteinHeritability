@@ -131,10 +131,12 @@ def MRNAProteinAverageCorrelation(MRNA, gene_to_protein,  pheno_prefix):
                     protein_values.append(pheno_value/pheno_count)
 
         pearson = numpy.corrcoef(mrna_values, protein_values)[0,1]
+        covariance = numpy.cov(mrna_values, protein_values)[0,1]
         line = []
         line.append(gene)
-        line.append(pearson)
         line.append(len(mrna_values))
+        line.append(pearson)
+        line.append(covariance)
         correlation.append(line)
     return correlation
 
@@ -161,16 +163,19 @@ def MRNAProteinCorrelation(MRNA, gene_to_protein,  pheno_prefix):
                         protein_values.append(the_pheno_value)
 
             pearson = "NA"
+            covariance = "NA"
             if len(mrna_values) and len(protein_values):
                 if len(mrna_values) == len(protein_values):
                     pearson = numpy.corrcoef(mrna_values, protein_values)[0,1]
+                    covariance = numpy.cov(mrna_values, protein_values)[0,1]
                 else:
                     raise Exception("Data does not comply")
 
             line = []
             line.append(gene+"-"+protein)
-            line.append(pearson)
             line.append(len(mrna_values))
+            line.append(pearson)
+            line.append(covariance)
             correlation.append(line)
 
     return correlation
@@ -178,7 +183,7 @@ def MRNAProteinCorrelation(MRNA, gene_to_protein,  pheno_prefix):
 def PrintCorrelation(correlation,file_name):
     with open(file_name, "w+") as file:
         for line in correlation:
-            text = line[0] + " " + str(line[1]) + " " + str(line[2]) + "\n"
+            text = line[0] + " " + str(line[1]) + " " + str(line[2]) + " " + str(line[3]) + "\n"
             file.write(text)
 
 def PrintGene(gene_name,MRNA, people_by_predixcan_row, prefix="Out/predixcandata-"):
