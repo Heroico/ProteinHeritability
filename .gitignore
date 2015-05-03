@@ -5,3 +5,4 @@ Intermediate*
 *.pyc
 .idea
 log.txt
+test.sh

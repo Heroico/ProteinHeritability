@@ -118,7 +118,7 @@ def PhenoFileName(prefix, pheno_name):
 
 def PrintPhenotypeFiles(phenos,grm_ids,file_name_prefix='Intermediate/pheno_'):
     for name, pheno in phenos.iteritems():
-        file_name = PhenoFileName(file_name_prefix, pheno)
+        file_name = PhenoFileName(file_name_prefix, name)
         with open(file_name, 'w+') as out:
             values = pheno[KEY_PHENO_VALUES]
             for ind in grm_ids:

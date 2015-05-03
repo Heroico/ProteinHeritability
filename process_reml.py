@@ -128,5 +128,5 @@ if __name__ == "__main__":
     files = glob.glob(pattern)
     results = BuildResultsFromFiles(files, len(pattern))
 
-    fine_name = args.reml_output
+    file_name = args.reml_output
     PrintResultsToFile(results, file_name)
