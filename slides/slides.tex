@@ -1,0 +1,47 @@
+\documentclass{beamer}
+\title{Heritability of Protein Phenotypes}
+\author{Alvaro Barbeira}
+\usepackage[utf8]{inputenc}
+\usepackage{default}
+\usetheme{Warsaw}
+
+\begin{document}
+  %title
+  \begin{frame}
+    \titlepage
+  \end{frame}
+  \begin{frame}
+    \frametitle{Outline}
+    \tableofcontents
+  \end{frame}
+  %intro
+  \section{Problem Introduction}
+  \begin{frame}
+    \frametitle{Problem:}
+    \framesubtitle{Explore heritability of Proteins}
+    \begin{itemize}
+      \item
+      Heritability of proteins was chosen as study subject because there are not many published results about it.
+      \item
+      Low data quality and noise was expected.
+      \item
+      Chosen data sets: hapmap release 23, Protein Data from Ron Hause and Lingfeng Wu
+    \end{itemize}
+  \end{frame}
+  
+  \section{Heritability}
+  \begin{frame}
+    \frametitle{General Method}
+    The basic procedure was:
+    \begin{itemize}
+      \item
+      Select individuals that satisfied $MAF >= 0.05$ with plink 1.07
+      \item
+      Generate Genetic Relationship Matrix with GCTA 1.24.4
+      \item
+      Use GCTA to figure out Restricted Maximum Likelihood (REML) for each protein
+    \end{itemize}
+    
+    Results:
+  \end{frame}
+\end{document}
