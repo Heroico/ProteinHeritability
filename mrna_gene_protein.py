@@ -197,6 +197,76 @@ def PrintGene(gene_name,MRNA, people_by_predixcan_row, prefix="Out/predixcandata
             file.write(text)
 
 #-----------------------------------------------------------------------------------------------------------------------
+def BuildTables(people, MRNA, gene_to_protein, pheno_prefix):
+    MRNA_view = []
+    pheno_view = []
+
+    header = []
+    header.append("person_id")
+    # build output hierarchy
+    MRNA_view.append(header)
+    pheno_view.append(header)
+    for index, person in enumerate(people):
+        mrna_row = []
+        mrna_row.append(person[KEY_PERSON_ID])
+        MRNA_view.append(mrna_row)
+
+        pheno_row = []
+        pheno_row.append(person[KEY_PERSON_ID])
+        pheno_view.append(pheno_row)
+
+    #fill output: each gene is a column, so we add each value to the corresponding row in the "views"
+    # person_id,    gene_1, gene_2, ...
+    # NA123456,     0.1,    2       ...
+    # NA123457,     0.15,   2.1     ...
+    # ...,          ...,    ...
+    for gene, mrna_item in MRNA.iteritems():
+        header.append(gene)
+        proteins = gene_to_protein[gene][KEY_GENE_PROTEINS]
+
+        phenos = []
+        for protein in proteins:
+            name = process_pheno.PhenoFileName(pheno_prefix, protein)
+            pheno = LoadPheno(name)
+            phenos.append(pheno)
+
+        for index, person in enumerate(people):
+            person_id = person[KEY_PERSON_ID]
+            #add to mrna row
+            mrna_row = MRNA_view[index+1]
+            mrna_item_values = mrna_item[KEY_MRNA_VALUES]
+            if person_id in mrna_item_values:
+                mrna_row.append(mrna_item_values[person_id])
+            else:
+                mrna_row.append("NA")
+
+            #add to pheno_row
+            pheno_row = pheno_view[index+1]
+            pheno_value = 0
+            pheno_count = 0
+
+            for pheno in phenos:
+                if person_id in pheno:
+                    value = pheno[person_id]
+                    if not "NA" in value:
+                        float_value = float(value)
+                        pheno_value += float_value
+                        pheno_count += 1
+
+            if pheno_count > 0:
+                pheno_row.append(str(pheno_value/pheno_count))
+            else:
+                pheno_row.append("NA")
+
+    return  MRNA_view, pheno_view
+
+def PrintTable(table, file_name):
+    with open(file_name, "w+") as file:
+        for row in table:
+            text = ",".join(row)+"\n"
+            file.write(text)
+
+#-----------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Correlations between proteins and mrna.')
@@ -224,6 +294,14 @@ if __name__ == "__main__":
     parser.add_argument("--trace_gene",
                         help="gene to be output",
                         default=None)
+    parser.add_argument("--csv_output_mode",
+                        help="activate output of csv's with protein data",
+                        action='store_true',
+                        default=False)
+    parser.add_argument("--csv_output_prefix_name",
+                        help="if csv outputmode, this will be the output pattern file name",
+                        default="./Out/hause_")
+
     args = parser.parse_args()
 
     #-------------------------------------------------------------------------------------------------------------------
@@ -239,21 +317,31 @@ if __name__ == "__main__":
     predixcan_file = args.predixcan_file
     MRNA = BuildMRNAData(people_by_predixcan_row, gene_to_protein, predixcan_file)
 
-    #-------------------------------------------------------------------------------------------------------------------
     pheno_prefix = args.pheno_prefix
-    correlation = MRNAProteinAverageCorrelation(MRNA, gene_to_protein, pheno_prefix)
+    if args.csv_output_mode:
+        MRNA_view, pheno_view = BuildTables(people, MRNA, gene_to_protein, pheno_prefix)
+        file_prefix = args.csv_output_prefix_name
 
-    output = args.out
-    PrintCorrelation(correlation, output)
+        mrna_file = file_prefix + "mrna_view.csv"
+        PrintTable(MRNA_view, mrna_file)
 
-    #-------------------------------------------------------------------------------------------------------------------
-    correlation_ext = MRNAProteinCorrelation(MRNA, gene_to_protein, pheno_prefix)
-    output_ext = args.out_ext
-    PrintCorrelation(correlation_ext, output_ext)
+        pheno_file = file_prefix + "pheno_view.csv"
+        PrintTable(pheno_view, pheno_file)
+    else:
+        #---------------------------------------------------------------------------------------------------------------
+        correlation = MRNAProteinAverageCorrelation(MRNA, gene_to_protein, pheno_prefix)
 
-    #-------------------------------------------------------------------------------------------------------------------
-    if args.trace_gene is not None and len(args.trace_gene):
-        PrintGene(args.trace_gene, MRNA, people_by_predixcan_row)
+        output = args.out
+        PrintCorrelation(correlation, output)
+
+        #---------------------------------------------------------------------------------------------------------------
+        correlation_ext = MRNAProteinCorrelation(MRNA, gene_to_protein, pheno_prefix)
+        output_ext = args.out_ext
+        PrintCorrelation(correlation_ext, output_ext)
+
+        #---------------------------------------------------------------------------------------------------------------
+        if args.trace_gene is not None and len(args.trace_gene):
+            PrintGene(args.trace_gene, MRNA, people_by_predixcan_row)
 
 
 
