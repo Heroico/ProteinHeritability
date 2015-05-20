@@ -6,14 +6,14 @@ plot_heritability <- function(file_prefix){
 	ordered_data <- data[order(data$V.G._to_Vp),]
 
 	sel <- data.frame(Index = seq.int(nrow(ordered_data)), Heritability = ordered_data$V.G._to_Vp)
-	sel$y_min <- ordered_data$V.G._to_Vp - ordered_data$SE.V.G._to_Vp.
-	sel$y_max <- ordered_data$V.G._to_Vp + ordered_data$SE.V.G._to_Vp.
+	sel$y_min <- ordered_data$V.G._to_Vp - 2 * ordered_data$SE.V.G._to_Vp.
+	sel$y_max <- ordered_data$V.G._to_Vp + 2 * ordered_data$SE.V.G._to_Vp.
 	sel$nice <- ifelse(sel$y_min > 0,"yes", "no")
 
 	p1<-ggplot(sel,aes(x=Index,y=Heritability, ymin = y_min, ymax=y_max) ) + 
 				geom_pointrange(col='gray')+
 				geom_point(aes(colour=nice))+
-				coord_cartesian(ylim = c(-5, 5))+
+				coord_cartesian(ylim = c(-0, 1))+
 				scale_colour_manual(values=c("yes" = "#991111", "no" = "#000000"))
 	
 	image <- paste(file_prefix, ".png", sep="")
