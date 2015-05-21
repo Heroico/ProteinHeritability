@@ -28,8 +28,6 @@ def BuildGeneData(people_by_row, data_file_name):
                 for col,gene in enumerate(row):
                     gene_item = {KEY_MRNA_GENE_NAME:gene, KEY_MRNA_GENE_COL:col}
                     geneData[gene] = gene_item
-                    if gene == "AATF":
-                        print col
                 read_first_row = True
             else:
                 person_row = reader.line_num-1
@@ -80,7 +78,7 @@ def Correlate(people_1, data_1, people_2, data_2):
                     flat_2.append(value_2)
 
             line = []
-            pearon = 0
+            pearson = 0
             covariance = 0
             samples = len(flat_1)
             if samples:
@@ -102,6 +100,49 @@ def PrintCorrelation(gene_correlation, file_name):
         for row in gene_correlation:
             text = row[0] + " " + str(row[1]) + " " + str(row[2]) + " " + str(row[3]) + "\n"
             file.write(text)
+
+def BuildIntersectionFiles(affy_people_by_row, affy_gene_data, predi_people_by_row, predi_gene_data, prefix):
+    common_people = []
+    affy_people = affy_people_by_row.values()
+    predi_people = predy_people_by_row.values()
+    for person_id in affy_people:
+        if person_id in predi_people:
+            common_people.append(person_id)
+            predi_people.remove(person_id)
+
+    common_genes = []
+    affy_genes = affy_gene_data.keys()
+    predi_genes = predi_gene_data.keys()
+    for gene in affy_genes:
+        if gene in predi_genes:
+            common_genes.append(gene)
+            predi_genes.remove(gene)
+
+    affy_output = prefix+"affy.csv"
+    with open(affy_output, "w+") as file:
+        header = ",".join(common_genes)+"\n"
+        file.write(header)
+
+        for person_id in common_people:
+            values=[]
+            for gene in common_genes:
+                gene_item = affy_gene_data[gene]
+                values.append(gene_item[KEY_MRNA_VALUES][person_id])
+            line = ",".join(values)+"\n"
+            file.write(line)
+
+    predy_output = prefix+"predi.csv"
+    with open(predy_output, "w+") as file:
+        header = ",".join(common_genes)+"\n"
+        file.write(header)
+
+        for person_id in common_people:
+            values=[]
+            for gene in common_genes:
+                gene_item = predi_gene_data[gene]
+                values.append(gene_item[KEY_MRNA_VALUES][person_id])
+            line = ",".join(values)+"\n"
+            file.write(line)
 
 if __name__ == "__main__":
 
@@ -130,6 +171,16 @@ if __name__ == "__main__":
     parser.add_argument("--affy_trace_gene",
                         help="affy gene to be output",
                         default=None)
+
+    parser.add_argument("--intersection_output",
+                       help="Will build files with intersection of affymetrix and predixcan data",
+                       action='store_true',
+                       default=False)
+
+    parser.add_argument("--intersection_output_prefix",
+                       help="Will build files with intersection of affymetrix and predixcan data",
+                       default="IntermediateC/intersection_mrna_")
+
     args = parser.parse_args()
 
     #-------------------------------------------------------------------------------------------------------------------
@@ -140,8 +191,11 @@ if __name__ == "__main__":
     predy_people_by_row = LoadPeople(args.predixcan_sample_file_name)
     predy_gene_data = BuildGeneData(predy_people_by_row, args.predixcan_results_file_name)
 
-    gene_correlation, pearson, covariance = Correlate(affy_people_by_row, affy_gene_data, predy_people_by_row, predy_gene_data)
-    PrintCorrelation(gene_correlation, args.out)
+    if args.intersection_output:
+        BuildIntersectionFiles(affy_people_by_row, affy_gene_data, predy_people_by_row, predy_gene_data, args.intersection_output_prefix)
+    else:
+        gene_correlation, pearson, covariance = Correlate(affy_people_by_row, affy_gene_data, predy_people_by_row, predy_gene_data)
+        PrintCorrelation(gene_correlation, args.out)
 
-    if args.affy_trace_gene is not None and len(args.affy_trace_gene):
-        PrintGene(args.affy_trace_gene, affy_gene_data, affy_people_by_row, "Out/affy-")
+        if args.affy_trace_gene is not None and len(args.affy_trace_gene):
+            PrintGene(args.affy_trace_gene, affy_gene_data, affy_people_by_row, "Out/affy-")
