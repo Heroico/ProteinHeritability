@@ -1,8 +1,7 @@
 if [[ ! -d "./IntermediateC" ]] ; then
     mkdir IntermediateC
+    python predixcan_stats.py --intersection_output
 fi
-
-python predixcan_stats.py --intersection_output
 
 cd Out
 

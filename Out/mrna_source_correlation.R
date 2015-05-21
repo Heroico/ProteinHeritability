@@ -21,6 +21,10 @@ mrna_source_correlation <- function(file_1, file_2) {
 		index = index+1
 	}
 
+	ordered_data <- correlation[order(correlation)]
+	png(filename="predi_affy_by_gene.png",width=720,height=960)
+	plot(ordered_data)
+	dev.off()
 	result = t.test(correlation, mu=0, conf.level=0.95)
 }
 
