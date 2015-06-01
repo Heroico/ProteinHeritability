@@ -11,7 +11,7 @@ plot_heritability <- function(file_prefix){
 	sel$nice <- ifelse(sel$y_min > 0,"yes", "no")
 
 	p1<-ggplot(sel,aes(x=Index,y=Heritability, ymin = y_min, ymax=y_max) ) + 
-				geom_pointrange(col='gray')+
+				geom_pointrange(col='gray',alpha=0.7)+
 				geom_point(aes(colour=nice))+
 				coord_cartesian(ylim = c(-0, 1))+
 				scale_colour_manual(values=c("yes" = "#991111", "no" = "#000000"))
