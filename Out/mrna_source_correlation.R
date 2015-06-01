@@ -1,3 +1,4 @@
+library(ggplot2)
 
 mrna_source_data <- function(file_1, file_2) {
 	data_1 = read.csv(file_1)
@@ -8,6 +9,8 @@ mrna_source_data <- function(file_1, file_2) {
 	correlation = numeric(length(genes))
 	samples = numeric(length(genes))
 	pvalues = numeric(length(genes))
+	y_min = numeric(length(genes))
+	y_max = numeric(length(genes))
 	index = 1
 	for( i in genes ) {
 		x <- data_1[[i]]
@@ -18,23 +21,37 @@ mrna_source_data <- function(file_1, file_2) {
 			res = cor.test(x, y, alternative="two.sided", method="pearson",conf.level=0.95)
 			pvalues[index] = res$p.value
 			correlation[index] = res$estimate
+			y_min[index] = res$conf.int[1]
+			y_max[index] = res$conf.int[2]
 		} else {
 			correlation[index] = NA
 		}
 		samples[index] = count
 		index = index+1
 	}
-	results <- data.frame(Gene = genes, Correlation = correlation, P.Value = pvalues, Samples = samples)
+	results <- data.frame(Gene = genes, 
+			Correlation = correlation, P.Value = pvalues,
+			 Samples = samples, Ymin = y_min, Ymax = y_max)
 }
 
 mrna_source_correlation <- function(data) {
-	correlation = data$Correlation
+	ordered_data <- data[order(data$Correlation),]
+	sel <- data.frame(Index = seq.int(nrow(ordered_data)), 
+					Correlation = ordered_data$Correlation,
+					y_min = ordered_data$Ymin,
+					y_max = ordered_data$Ymax)
+	sel$nice <- ifelse(sel$y_min > 0,"yes", "no")
 
-	ordered_data <- correlation[order(correlation)]
-	png(filename="predi_affy_by_gene.png",width=720,height=960)
-	plot(ordered_data)
+	p1<-ggplot(sel,aes(x=Index,y=Correlation, ymin = y_min, ymax=y_max) ) + 
+				geom_pointrange(col='gray',alpha=0.1)+
+				geom_point(aes(colour=nice))+
+				coord_cartesian(ylim = c(-1, 1))+
+				scale_colour_manual(values=c("yes" = "#991111", "no" = "#000000"))
+
+	png(filename="predi_affy_by_gene.png",width=1024,height=768)
+	print(p1)
 	dev.off()
-	result = t.test(correlation, mu=0, conf.level=0.95)
+	result = t.test(data$Correlation, mu=0, conf.level=0.95)
 }
 
 qqunif = 
@@ -43,7 +60,7 @@ function(file = NULL,p,BH=T,CI=T,...)
   nn = length(p)
   xx =  -log10((1:nn)/(nn+1))
 	if (! is.null(file)) {
-		png(filename=file,width=720,height=960)
+		png(filename=file,width=1024,height=768)
 	}
   plot( xx,  -sort(log10(p)),
      xlab=expression(Expected~~-log[10](italic(p))),

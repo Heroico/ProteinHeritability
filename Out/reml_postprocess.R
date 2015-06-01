@@ -17,7 +17,7 @@ plot_heritability <- function(file_prefix){
 				scale_colour_manual(values=c("yes" = "#991111", "no" = "#000000"))
 	
 	image <- paste(file_prefix, ".png", sep="")
-	png(filename=image,width=720,height=960)
+	png(filename=image,width=1024,height=768)
 	print(p1)
 	dev.off()
 

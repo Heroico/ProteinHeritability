@@ -51,11 +51,11 @@ plot_mrna_protein_correlation <- function(file_prefix) {
 	p1<-ggplot(sel,aes(x=Index,y=Correlation, ymin = y_min, ymax=y_max) ) + 
 				geom_pointrange(col='gray')+
 				geom_point(aes(colour=nice))+
-				coord_cartesian(ylim = c(-1.5, 1.5))+
+				coord_cartesian(ylim = c(-1, 1))+
 				scale_colour_manual(values=c("yes" = "#991111", "no" = "#000000"))
 	
 	image <- paste(file_prefix, "mrna_protein.png", sep="")
-	png(filename=image,width=720,height=960)
+	png(filename=image,width=1024,height=768)
 	print(p1)
 	dev.off()
 
