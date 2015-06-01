@@ -47,25 +47,25 @@
     \end{itemize}
     \vskip15pt
     Results:
-    Heritability took values either $0$ or $1$ for most genes, with standard error near $~1$.
+    Heritability took values either $0$ or $1$ for most proteins, with standard error near $~1$.
   \end{frame}
   
   \begin{frame}
-    \frametitle{Data from Hause et al results}
+    \frametitle{Heritability from Hause et al data}
     \begin{center}
       \begin{figure}
-      \includegraphics[scale=0.3]{../Out/reml_hause.png}
-      \caption{Heritability of Hause Gene Data}
+      \includegraphics[scale=0.2]{../Out/reml_results_hause.png}
+      \caption{Heritability of Hause Protein Data. Error is to large, no heritability can be asserted as having a positive definite value.}
       \end{figure}
     \end{center}
   \end{frame}
   
   \begin{frame}
-    \frametitle{Data from Wu et al results}
+    \frametitle{Heritability from Wu et al data}
     \begin{center}
       \begin{figure}
-      \includegraphics[scale=0.3]{../Out/reml_wu.png}
-      \caption{Heritability of Wu Gene Data}
+      \includegraphics[scale=0.2]{../Out/reml_results_wu.png}
+      \caption{Heritability of Wu Gene Data. Some points adopt a positive value within an acceptable error level.}
       \end{figure}
     \end{center}
   \end{frame}
@@ -91,21 +91,21 @@
   \end{frame}
   
   \begin{frame}
-    \frametitle{Data from Hause et al results}
+    \frametitle{Protein-MRNA correlation from Hause et al data}
     \begin{center}
       \begin{figure}
-      \includegraphics[scale=0.3]{../Out/hause-mrna-protein-r-squared.png}
-      \caption{Correlation ($R^2$) for Hause et al. data}
+      \includegraphics[scale=0.2]{../Out/hause_mrna_protein.png}
+      \caption{Correlation ($R$) for Hause et al. data}
       \end{figure}
     \end{center}
   \end{frame}
 
   \begin{frame}
-    \frametitle{Data from Hause et al results}
+    \frametitle{Protein-MRNA correlation from Wu et al data}
     \begin{center}
       \begin{figure}
-      \includegraphics[scale=0.3]{../Out/wu-mrna-protein-r-squared.png}
-      \caption{Correlation ($R^2$) for Wu et al. data}
+      \includegraphics[scale=0.2]{../Out/wu_mrna_protein.png}
+      \caption{Correlation ($R$) for Wu et al. data}
       \end{figure}
     \end{center}
   \end{frame}
@@ -124,6 +124,26 @@
     Results:
     Again, $R^2$ was not great, but showed some relationship
     Values near $1$ are taken by sets with very few individuals' data was available.
+  \end{frame}
+  
+  \begin{frame}
+    \frametitle{Predixcan-Affymetrix correlation}
+    \begin{center}
+      \begin{figure}
+      \includegraphics[scale=0.2]{../Out/predi_affy_by_gene.png}
+      \caption{Correlation ($R \in [0.0404,0.0484]$) between predixcan and affymetrix gene expression}
+      \end{figure}
+    \end{center}
+  \end{frame}
+  
+    \begin{frame}
+    \frametitle{Predixcan-Affymetrix p values}
+    \begin{center}
+      \begin{figure}
+      \includegraphics[scale=0.2]{../Out/qqunif_predixcan_affymetrix.png}
+      \caption{Log10 of observed p-values against log10 of uniform distribution}
+      \end{figure}
+    \end{center}
   \end{frame}
   
   \section{Possible Next Steps}
